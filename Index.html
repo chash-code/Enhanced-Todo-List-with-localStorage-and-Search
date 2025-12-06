@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>L1 - Enhanced Todo List</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .input-section {
+            padding: 25px;
+            background: #f8f9fa;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        #taskInput {
+            flex: 1;
+            padding: 12px 15px;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        #taskInput:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        #addBtn {
+            padding: 12px 25px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        #addBtn:hover {
+            transform: translateY(-2px);
+        }
+
+        #addBtn:active {
+            transform: translateY(0);
+        }
+
+        #searchInput {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            font-size: 16px;
+            background: white;
+        }
+
+        #searchInput:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .task-list {
+            padding: 25px;
+            min-height: 300px;
+        }
+
+        .task-stats {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+
+        .task-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            transition: all 0.3s;
+        }
+
+        .task-item:hover {
+            border-color: #667eea;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.1);
+        }
+
+        .task-item.completed {
+            background: #f8f9fa;
+            opacity: 0.7;
+        }
+
+        .task-checkbox {
+            width: 24px;
+            height: 24px;
+            margin-right: 15px;
+            cursor: pointer;
+            accent-color: #667eea;
+        }
+
+        .task-text {
+            flex: 1;
+            font-size: 16px;
+            color: #333;
+        }
+
+        .task-item.completed .task-text {
+            text-decoration: line-through;
+            color: #6c757d;
+        }
+
+        .task-id {
+            font-size: 11px;
+            color: #adb5bd;
+            margin-right: 10px;
+            font-family: monospace;
+        }
+
+        .delete-btn {
+            padding: 8px 15px;
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+
+        .delete-btn:hover {
+            background: #c82333;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6c757d;
+        }
+
+        .empty-state-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+            opacity: 0.3;
+        }
+
+        .empty-state-text {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        .empty-state-subtext {
+            font-size: 14px;
+            opacity: 0.7;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 40px 20px;
+            color: #6c757d;
+        }
+
+        @media (max-width: 600px) {
+            .input-group {
+                flex-direction: column;
+            }
+
+            #addBtn {
+                width: 100%;
+            }
+
+            .task-stats {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header Section -->
+        <div class="header">
+            <h1>✓ Todo List</h1>
+            <p>Stay organized with localStorage persistence</p>
+        </div>
+
+        <!-- Input Section -->
+        <div class="input-section">
+            <!-- Add Task Input -->
+            <div class="input-group">
+                <input 
+                    type="text" 
+                    id="taskInput" 
+                    placeholder="What do you need to do today?"
+                    autocomplete="off"
+                >
+                <button id="addBtn">Add Task</button>
+            </div>
+
+            <!-- Search Bar -->
+            <input 
+                type="text" 
+                id="searchInput" 
+                placeholder="🔍 Search tasks..."
+                autocomplete="off"
+            >
+        </div>
+
+        <!-- Task List Section -->
+        <div class="task-list">
+            <!-- Task Statistics -->
+            <div class="task-stats">
+                <div class="stat">
+                    <div class="stat-number" id="totalTasks">0</div>
+                    <div class="stat-label">Total Tasks</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number" id="completedTasks">0</div>
+                    <div class="stat-label">Completed</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number" id="pendingTasks">0</div>
+                    <div class="stat-label">Pending</div>
+                </div>
+            </div>
+
+            <!-- Tasks Container -->
+            <div id="tasksContainer"></div>
+        </div>
+    </div>
+
+    <script>
+        
+        // Get DOM elements
+        const taskInput = document.getElementById('taskInput');
+        const addBtn = document.getElementById('addBtn');
+        const searchInput = document.getElementById('searchInput');
+        const tasksContainer = document.getElementById('tasksContainer');
+        const totalTasksEl = document.getElementById('totalTasks');
+        const completedTasksEl = document.getElementById('completedTasks');
+        const pendingTasksEl = document.getElementById('pendingTasks');
+
+        // localStorage key for storing tasks
+        const STORAGE_KEY = 'todoTasks';
+
+        // Array to store all tasks (will be loaded from localStorage)
+        let tasks = [];
+
+        function generateUniqueId() {
+            return 'task_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        }
+
+        /**
+         * Save tasks array to localStorage as JSON
+         * Converts the tasks array to JSON string and stores it
+         */
+        function saveTasks() {
+            try {
+                // Convert tasks array to JSON string
+                const tasksJSON = JSON.stringify(tasks);
+                
+                // Save to localStorage
+                localStorage.setItem(STORAGE_KEY, tasksJSON);
+                
+                console.log('Tasks saved to localStorage:', tasks);
+            } catch (error) {
+                console.error('Error saving tasks:', error);
+                alert('Failed to save tasks. Please try again.');
+            }
+        }
+
+        /**
+         * Load tasks from localStorage
+         * Retrieves JSON string and parses it back to array
+         */
+        function loadTasks() {
+            try {
+                // Get tasks JSON string from localStorage
+                const tasksJSON = localStorage.getItem(STORAGE_KEY);
+                
+                // If tasks exist, parse JSON and assign to tasks array
+                if (tasksJSON) {
+                    tasks = JSON.parse(tasksJSON);
+                    console.log('Tasks loaded from localStorage:', tasks);
+                } else {
+                    tasks = [];
+                    console.log('No tasks found in localStorage. Starting fresh.');
+                }
+            } catch (error) {
+                console.error('Error loading tasks:', error);
+                tasks = [];
+            }
+        }
+
+        /**
+         * Add a new task to the list
+         * Creates task object with unique ID, text, and completion status
+         */
+        function addTask() {
+            // Get task text from input and trim whitespace
+            const taskText = taskInput.value.trim();
+            
+            // Validate: Don't add empty tasks
+            if (taskText === '') {
+                alert('Please enter a task!');
+                return;
+            }
+
+            // Create new task object with required properties
+            const newTask = {
+                id: generateUniqueId(),        // Unique identifier
+                text: taskText,                // Task description
+                completed: false               // Completion status
+            };
+
+            // Add task to the beginning of tasks array
+            tasks.unshift(newTask);
+
+            // Save updated tasks to localStorage
+            saveTasks();
+
+            // Clear input field
+            taskInput.value = '';
+
+            // Re-render the task list
+            renderTasks();
+
+            console.log('Task added:', newTask);
+        }
+
+        /**
+         * Toggle task completion status
+         * @chash {string} taskId - The unique ID of the task to toggle
+         */
+        function toggleTask(taskId) {
+            // Find the task in the array
+            const task = tasks.find(t => t.id === taskId);
+            
+            if (task) {
+                // Toggle the completed status
+                task.completed = !task.completed;
+                
+                // Save to localStorage
+                saveTasks();
+                
+                // Re-render tasks
+                renderTasks();
+                
+                console.log('Task toggled:', task);
+            }
+        }
+
+        /**
+         * Delete a task from the list
+         * @chash {string} taskId - The unique ID of the task to delete
+         */
+        function deleteTask(taskId) {
+            // Confirm before deleting
+            if (confirm('Are you sure you want to delete this task?')) {
+                // Filter out the task with matching ID
+                tasks = tasks.filter(t => t.id !== taskId);
+                
+                // Save to localStorage
+                saveTasks();
+                
+                // Re-render tasks
+                renderTasks();
+                
+                console.log('Task deleted. ID:', taskId);
+            }
+        }
+
+        /**
+         * Search and filter tasks in real-time
+         * @param {string} searchQuery - The search text entered by user
+         */
+        function searchTasks(searchQuery) {
+            // Convert search query to lowercase for case-insensitive search
+            const query = searchQuery.toLowerCase().trim();
+            
+            // If search is empty, show all tasks
+            if (query === '') {
+                renderTasks();
+                return;
+            }
+
+            // Filter tasks that match the search query
+            const filteredTasks = tasks.filter(task => 
+                task.text.toLowerCase().includes(query)
+            );
+
+            // Render only the filtered tasks
+            renderTasks(filteredTasks);
+            
+            console.log('Search results:', filteredTasks);
+        }
+
+        /**
+         * Update task statistics (total, completed, pending)
+         */
+        function updateStats() {
+            const total = tasks.length;
+            const completed = tasks.filter(t => t.completed).length;
+            const pending = total - completed;
+
+            totalTasksEl.textContent = total;
+            completedTasksEl.textContent = completed;
+            pendingTasksEl.textContent = pending;
+        }
+
+        /**
+         * Render tasks to the DOM
+         * @param {Array} tasksToRender - Optional array of tasks to render (for search)
+         */
+        function renderTasks(tasksToRender = tasks) {
+            // Clear the container
+            tasksContainer.innerHTML = '';
+
+            // Update statistics
+            updateStats();
+
+            // If no tasks, show empty state
+            if (tasks.length === 0) {
+                tasksContainer.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📝</div>
+                        <div class="empty-state-text">No tasks yet!</div>
+                        <div class="empty-state-subtext">Add your first task to get started</div>
+                    </div>
+                `;
+                return;
+            }
+
+            // If search returned no results
+            if (tasksToRender.length === 0) {
+                tasksContainer.innerHTML = `
+                    <div class="no-results">
+                        <p>🔍 No tasks found matching your search.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Create HTML for each task
+            tasksToRender.forEach(task => {
+                // Create task item element
+                const taskElement = document.createElement('div');
+                taskElement.className = `task-item ${task.completed ? 'completed' : ''}`;
+                
+                // Set inner HTML with task details
+                taskElement.innerHTML = `
+                    <input 
+                        type="checkbox" 
+                        class="task-checkbox" 
+                        ${task.completed ? 'checked' : ''}
+                        onchange="toggleTask('${task.id}')"
+                    >
+                    <span class="task-id">#${task.id.slice(-6)}</span>
+                    <span class="task-text">${task.text}</span>
+                    <button class="delete-btn" onclick="deleteTask('${task.id}')">
+                        Delete
+                    </button>
+                `;
+
+                // Append to container
+                tasksContainer.appendChild(taskElement);
+            });
+        }
+
+
+        // Add task when Add button is clicked
+        addBtn.addEventListener('click', addTask);
+
+        // Add task when Enter key is pressed in input field
+        taskInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                addTask();
+            }
+        });
+
+        // Real-time search as user types
+        searchInput.addEventListener('input', (e) => {
+            searchTasks(e.target.value);
+        });
+
+        
+        function init() {
+            console.log('Initializing Todo List App...');
+            
+            // Load tasks from localStorage
+            loadTasks();
+            
+            // Render tasks to the page
+            renderTasks();
+            
+            console.log('App initialized successfully!');
+        }
+
+        // Run initialization when page loads
+        window.addEventListener('load', init);
+    </script>
+</body>
+</html>
